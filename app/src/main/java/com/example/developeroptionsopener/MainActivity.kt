@@ -1,20 +1,10 @@
 package com.example.developeroptionsopener
 
-import android.Manifest
-import android.Manifest.permission
-import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.content.pm.PackageManager.PERMISSION_DENIED
-import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.startActivity
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,16 +14,30 @@ class MainActivity : AppCompatActivity() {
         openSettings()
     }
 
-    fun openSettings() {
-        val intent = Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
+    private fun openSettings() {
 
-        try {
+        if (Settings.Secure.getInt(this.contentResolver,
+                Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0) != 0) {
+            try {
+                val intent = Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
+                startActivity(intent)
+                finish()
+            } catch (e: Exception) {
+                Toast
+                    .makeText(this, e.toString(), Toast.LENGTH_LONG)
+                    .show()
+                finish()
+            }
+        } else {
+            Toast
+                .makeText(this, "Dev options disabled!", Toast.LENGTH_LONG)
+                .show()
+            val intent = Intent(Settings.ACTION_DEVICE_INFO_SETTINGS)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
             finish()
-        } catch (e: Exception) {
-            Toast.makeText(applicationContext, e.toString(), Toast.LENGTH_LONG).show()
-            finish()
         }
+
     }
 
 }
